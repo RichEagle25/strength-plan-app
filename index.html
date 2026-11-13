@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>30-Day Strength Plan</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#d9480f"><link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#15202b;--mut:#5f6b76;--line:#dde1e6;--acc:#d9480f;--mon:#1864ab;--wed:#0b7285;--fri:#d9480f;--ok:#2f9e44;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f141a;--card:#1a222b;--ink:#eef1f4;--mut:#9aa6b2;--line:#2c3742;--acc:#ff8a4c;--mon:#5aa9f0;--wed:#3cc2d8;--fri:#ff8a4c;--ok:#51cf66;color-scheme:dark}}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+header{padding:14px 16px 6px}h1{font-size:20px;margin:0}header p{margin:2px 0 0;color:var(--mut);font-size:13px}
+nav{display:flex;gap:6px;padding:8px 12px;position:sticky;top:0;background:var(--bg);z-index:5;border-bottom:1px solid var(--line)}
+nav button{flex:1;padding:10px 4px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:600 13px inherit}
+nav button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+main{padding:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+h2{font-size:16px;margin:0 0 8px}h3{font-size:14px;margin:10px 0 4px}small,.mut{color:var(--mut);font-size:13px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:0 0 auto}
+select,input,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px}
+input[type=number]{width:90px}
+.pill{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 13px inherit}
+.pill.on{background:var(--ink);color:var(--bg)}
+.ex{border-left:5px solid var(--c);padding-left:10px;margin:0 0 14px}.ex b{font-size:15px}
+.tag{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-size:13px;margin-right:4px}
+.sets{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap}
+.set{width:46px;height:46px;border-radius:50%;border:2px solid var(--c);background:transparent;color:var(--ink);font:700 16px inherit}
+.set.on{background:var(--c);color:#fff}
+.how{font-size:13px;color:var(--mut);margin:4px 0 0}
+.btn{padding:11px 14px;border-radius:10px;border:0;background:var(--acc);color:#fff;font:700 14px inherit}
+.btn.alt{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.meal{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
+.meal input{width:24px;height:24px;margin-top:2px}.meal div{flex:1}
+.bar{height:12px;background:var(--line);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ok)}
+.bar.over i{background:#e03131}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px solid var(--line);padding:7px 4px;text-align:left}
+svg{width:100%;height:auto;display:block}
+#timer{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));z-index:9}
+#timer .t{font:800 30px system-ui;min-width:78px}
+ul{padding-left:18px;margin:4px 0}li{margin:3px 0}
+</style></head><body>
+<header><h1>💪 30-Day Strength Plan</h1><p>Mon · Wed · Fri · jugs, backpack, door towel · food under ₱150/day</p></header>
+<nav id="nav"></nav><main id="main"></main>
+<div id="timer"><div class="row"><span class="t" id="tt">0:00</span>
+<button class="pill" data-r="60">60s</button><button class="pill" data-r="90">90s</button><button class="pill" data-r="120">2m</button><button class="pill" data-r="180">3m</button>
+<button class="pill" id="stop">Stop</button><label class="mut"><input type="checkbox" id="auto" style="width:auto"> auto</label></div></div>
+<script>
+const $=s=>document.querySelector(s);
+const S0={w:1,d:"MON",done:{},loads:{},weights:[],tests:{},food:{},auto:true};
+let S;try{S=Object.assign({},S0,JSON.parse(localStorage.getItem("sp1")||"{}"))}catch(e){S=Object.assign({},S0)}
+const save=()=>{try{localStorage.setItem("sp1",JSON.stringify(S))}catch(e){}};
+const G=(n,w)=>w; // helper
+// exercise: [name, [[sets/reps, load] x5], how-to]
+const X={
+MON:[["Goblet squat (jug)",[["3×10","jug 10 L"],["3×10","jug 12 L"],["4×8","jug 14 L"],["4×6–8","jug 16 L"],["3×6","jug 12 L"]],"Hug jug to chest, feet shoulder-width. Sit between your knees, chest tall, heels flat. Lower 3 s, stand strong."],
+["Loaded push-up (feet on chair)",[["3×12","no pack"],["3×10","pack 3 kg"],["4×8–10","pack 5 kg"],["4×6–8","pack 7 kg"],["3×8","pack 4 kg"]],"Chair backrest against a wall, feet on seat, backpack on. Straight body, chest to ~2 cm from floor, push away."],
+["One-arm jug row (each arm)",[["3×10","jug 8 L"],["3×10","jug 10 L"],["4×8–10","jug 12 L"],["4×8","jug 14–16 L"],["3×8","jug 10 L"]],"Chair against a wall, one hand on seat, feet staggered, back flat. Pull jug to hip, squeeze blade, lower 2 s."],
+["Glute bridge (jug on hips)",[["3×12","jug 8 L"],["3×12","jug 12 L"],["3×10","jug 14 L"],["3×10","jug 16 L"],["2×10","jug 10 L"]],"On your back, knees bent. Jug on hips (towel under). Hips up until body is flat, squeeze glutes 1–2 s."],
+["Plank",[["3×30 s","body"],["3×40 s","body"],["3×45 s","elbows forward"],["3×50 s","elbows forward"],["2×45 s","body"]],"Elbows under shoulders, straight line head to heels, squeeze glutes and abs."],
+["Curl (jug or backpack)",[["2×10","jug 5 L"],["2×12","jug 5 L"],["3×10","jug 8 L"],["3×8–10","jug 10 L"],["2×10","jug 8 L"]],"Elbow glued to your side. Curl up, lower 2 s, no swinging."]],
+WED:[["Jug Romanian deadlift",[["3×10","2 jugs · 8 L"],["3×10","2 jugs · 10 L"],["4×8","2 jugs · 12 L"],["4×6–8","2 jugs · 14 L"],["3×6","2 jugs · 10 L"]],"A jug in each hand. Soft knees, push hips BACK, jugs slide down legs, back flat. Stand by squeezing glutes."],
+["Pike push-up (feet on chair)",[["3×6","body"],["3×8","body"],["4×8","body"],["4×10","body"],["3×8","body"]],"Chair against a wall, hips high (upside-down V). Head goes between hands, press back up."],
+["Towel door row",[["3×8","upright"],["3×10","medium"],["4×10","flatter"],["4×12","flat"],["3×8","medium"]],"Solid door opening AWAY from you, towel over the top, door locked. Test first! Lean back, pull chest to hands, lower 2–3 s. No safe door? Do a backpack row."],
+["Split squat (each leg)",[["3×8","body"],["3×8","jug 5 L"],["3×10","jug 8 L"],["4×8","jug 10–12 L"],["2×8","jug 6 L"]],"Back foot on chair (against a wall), front foot ~60 cm ahead. Drop back knee straight down, push through front heel."],
+["Dead bug (each side)",[["3×8","body"],["3×10","body"],["3×12","body"],["3×12","slow"],["2×10","body"]],"On your back, arms up, knees 90°. Lower opposite arm and leg slowly, low back stays on the floor."],
+["Close-grip push-up",[["2×10","body"],["3×10","body"],["3×12","body"],["3×12–15","body"],["2×10","body"]],"Hands under chest, elbows brushing ribs. Chest to hands, push up."]],
+FRI:[["Pause goblet squat (3 s)",[["3×8","jug 8 L"],["3×8","jug 10 L"],["3×8","jug 12 L"],["4×6","jug 14 L"]],"Like the goblet squat, but pause 3 s at the bottom. No bouncing."],
+["Archer push-up (each side)",[["3×4","body"],["3×5","body"],["4×5","body"],["4×6","body"]],"Hands wide. Lower toward one hand, other arm stays straight. Push up, switch sides."],
+["Backpack row",[["3×10","pack 4 kg"],["3×12","pack 5 kg"],["4×10","pack 7 kg"],["4×10","pack 9 kg"]],"Hinge to ~45°, flat back. Pull pack by straps to belly, squeeze blades, lower slowly."],
+["Farmer carry (2 jugs)",[["3×30 s","2 jugs · 8 L"],["3×35 s","2 jugs · 10 L"],["3×40 s","2 jugs · 12 L"],["3×40 s","2 jugs · 12–14 L"]],"Jug in each hand (dry grip on the neck). Stand tall, walk slowly 10–15 steps, turn, repeat."],
+["Hollow hold",[["3×15 s","body"],["3×20 s","body"],["3×25 s","body"],["3×30 s","body"]],"On your back, low back pressed down, lift shoulders and straight legs a few cm. Hold."],
+["Finisher: calf + side raise",[["2×rounds","calf ×15 · raise ×12"],["2×rounds","calf ×15 · raise ×12"],["3×rounds","calf ×15 · raise ×12"],["3×rounds","calf ×15 · raise ×12"]],"Calf raise on one leg ×15 each (hand on wall). Side raise with 1.5 L bottles ×12."]]};
+const TESTS=["Goblet squat, full jug (16 L): reps","One-arm jug row 10 L: reps (each arm)","Floor push-ups: reps","Pike push-ups, feet on chair: reps","Towel door row (same angle): reps","Plank: seconds"];
+const COL={MON:"var(--mon)",WED:"var(--wed)",FRI:"var(--fri)"};
+const WK=["Foundation: leave 3 reps in the tank","Build: add reps or +2 L, leave 2–3","Push: 4 sets on the first lifts, leave ~2","Peak: heaviest week, leave 1–2","Final week: lighter Mon/Wed, Friday MAX TEST"];
+const MEALS=[["6:30 Breakfast","1½ cups rice + 2 eggs (1 tsp oil) + 1 saba",28],["10:00 Snack","2 saba + handful of peanuts",15],["12:30 Lunch","2 cups rice + monggo stew with malunggay/kangkong + 1 tbsp oil",24],["3:30 Snack","1 sachet powdered milk + 2 pandesal",20],["7:00 Dinner","2 cups rice + 1 can sardines with garlic, onion, veggies (or egg / liver / tokwa)",50]];
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+let tab="train";
+const TABS=[["train","Train"],["food","Food"],["prog","Progress"],["guide","Guide"]];
+$("#nav").innerHTML=TABS.map(t=>`<button data-t="${t[0]}">${t[1]}</button>`).join("");
+$("#nav").onclick=e=>{const t=e.target.dataset.t;if(t){tab=t;render()}};
+function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+function train(){
+ const w=S.w,d=S.d;let h=`<div class="card"><div class="row"><select id="sw">${[1,2,3,4,5].map(i=>`<option value="${i}" ${i==w?"selected":""}>${i==5?"Final week":"Week "+i}</option>`).join("")}</select>`+
+ ["D0","MON","WED","FRI"].map(x=>`<button class="pill ${d==x?"on":""}" data-d="${x}">${x=="D0"?"Day 0":x[0]+x.slice(1).toLowerCase()}</button>`).join("")+`</div><p class="mut" style="margin:8px 0 0">${WK[w-1]}. Rest 2 min after the first three lifts. Tap a circle when a set is done.</p></div>`;
+ if(d=="D0"||(w==5&&d=="FRI")){const k=d=="D0"?"day0":"final";
+  h+=`<div class="card"><h2>${d=="D0"?"Day 0 baseline test":"MAX TEST"}</h2><p class="mut">Warm up 10 min, rest 3 min between tests, stop when form breaks.</p>`+
+  TESTS.map((t,i)=>`<div class="row" style="margin:8px 0"><span style="flex:1">${i+1}. ${t}</span><input type="number" inputmode="numeric" data-t="${k}|${i}" value="${(S.tests[k]||{})[i]??""}"></div>`).join("")+`</div>`;return h}
+ X[d].forEach((e,i)=>{const p=e[1][Math.min(w-1,e[1].length-1)],n=parseInt(p[0])||3,key=w+d+i,done=S.done[key]||[];
+  h+=`<div class="card"><div class="ex" style="--c:${COL[d]}"><b>${e[0]}</b><div style="margin-top:4px"><span class="tag">${p[0].includes("rounds")?n+" rounds":p[0].replace("×"," × ")}</span><span class="tag">${p[1]}</span></div>
+  <div class="sets">${Array.from({length:n},(_,j)=>`<button class="set ${done[j]?"on":""}" data-k="${key}" data-j="${j}" data-i="${i}" style="--c:${COL[d]}">${j+1}</button>`).join("")}</div>
+  <div class="row"><input data-l="${key}" placeholder="load / notes" value="${esc(S.loads[key]||"")}" style="flex:1;min-width:0"></div><p class="how">${e[2]}</p></div></div>`});
+ const tot=X[d].reduce((a,e,i)=>a+(S.done[w+d+i]||[]).filter(Boolean).length,0),all=X[d].reduce((a,e)=>a+(parseInt(e[1][Math.min(w-1,e[1].length-1)][0])||3),0);
+ return h+`<div class="card"><b>${tot}/${all} sets done</b>${tot==all?" 🔥 Workout complete!":""}</div>`}
+function food(){const t=today(),f=S.food[t]||(S.food[t]={m:[],spent:""});
+ const est=MEALS.reduce((a,m,i)=>a+(f.m[i]?m[2]:0),0),sp=f.spent===""?est:+f.spent;
+ let h=`<div class="card"><h2>Today’s meals</h2><p class="mut" style="margin:0 0 4px">Goal ≈ 2,600 kcal and 85+ g protein. Weigh yourself every Sunday morning.</p>`+
+ MEALS.map((m,i)=>`<label class="meal"><input type="checkbox" data-m="${i}" ${f.m[i]?"checked":""}><div><b>${m[0]}</b> <span class="mut">≈ ₱${m[2]}</span><br><small>${m[1]}</small></div></label>`).join("")+`</div>
+ <div class="card"><h2>Money today</h2><div class="row"><span>Spent ₱</span><input type="number" inputmode="decimal" id="sp" value="${f.spent}" placeholder="${est}"><span class="mut">of ₱150</span></div>
+ <div class="bar ${sp>150?"over":""}" style="margin:10px 0"><i style="width:${Math.min(100,sp/1.5)}%"></i></div><small>${sp>150?"Over budget by ₱"+(sp-150).toFixed(0):"₱"+(150-sp).toFixed(0)+" left"}</small></div>`;
+ const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");const r=S.food[k];days.push([d.toLocaleDateString(undefined,{weekday:"short"}),r?(r.spent!==""?+r.spent:r.m.reduce((a,x,j)=>a+(x?MEALS[j][2]:0),0)):0])}
+ const mx=Math.max(160,...days.map(x=>x[1]));
+ h+=`<div class="card"><h2>Last 7 days (₱)</h2><svg viewBox="0 0 320 130">`+days.map((x,i)=>{const bh=x[1]/mx*90;return `<rect x="${i*45+8}" y="${100-bh}" width="30" height="${bh}" rx="4" fill="${x[1]>150?"#e03131":"var(--ok)"}"/><text x="${i*45+23}" y="116" font-size="11" text-anchor="middle" fill="var(--mut)">${x[0]}</text><text x="${i*45+23}" y="${96-bh}" font-size="10" text-anchor="middle" fill="var(--ink)">${x[1]||""}</text>`}).join("")+`<line x1="0" x2="320" y1="${100-150/mx*90}" y2="${100-150/mx*90}" stroke="var(--acc)" stroke-dasharray="4"/></svg></div>
+ <div class="card"><h3>Cheap swaps for dinner</h3><ul><li>Monggo (cheapest protein), peanuts</li><li>Chicken liver or fresh tamban</li><li>Eggs, sardines, tokwa</li><li>Not gaining after 2 weeks? Add 1 cup rice + 1 egg a day.</li><li>Ask your barangay/LGU about ₱20/kg rice.</li></ul></div>`;return h}
+function line(pts,unit){if(pts.length<1)return `<p class="mut">No entries yet.</p>`;const ys=pts.map(p=>p[1]),lo=Math.min(...ys)-1,hi=Math.max(...ys)+1,W=320,H=140,px=i=>pts.length==1?W/2:20+i*(W-40)/(pts.length-1),py=v=>H-25-(v-lo)/(hi-lo)*(H-50);
+ return `<svg viewBox="0 0 ${W} ${H}"><polyline fill="none" stroke="var(--acc)" stroke-width="3" points="${pts.map((p,i)=>px(i)+","+py(p[1])).join(" ")}"/>`+pts.map((p,i)=>`<circle cx="${px(i)}" cy="${py(p[1])}" r="4" fill="var(--acc)"/><text x="${px(i)}" y="${py(p[1])-9}" font-size="11" text-anchor="middle" fill="var(--ink)">${p[1]}</text><text x="${px(i)}" y="${H-6}" font-size="9" text-anchor="middle" fill="var(--mut)">${p[0].slice(5)}</text>`).join("")+`</svg>`}
+function prog(){const W=S.weights;let h=`<div class="card"><h2>Weight (kg)</h2><div class="row"><input type="number" step="0.1" inputmode="decimal" id="wi" placeholder="e.g. 40.5"><button class="btn" id="wadd">Save today</button></div>${line(W.slice(-10),"kg")}`+
+ (W.length>1?`<p class="mut">Change: <b>${(W[W.length-1][1]-W[0][1]).toFixed(1)} kg</b> since ${W[0][0]}. Aim for +0.25–0.5 kg a week.</p>`:"")+`</div><div class="card"><h2>Test results</h2><table><tr><th>Test</th><th>Day 0</th><th>Final</th><th>Δ</th></tr>`+
+ TESTS.map((t,i)=>{const a=(S.tests.day0||{})[i],b=(S.tests.final||{})[i],dl=a!==undefined&&a!==""&&b!==undefined&&b!==""?b-a:"";return `<tr><td>${t.split(":")[0]}</td><td>${a??"–"}</td><td>${b??"–"}</td><td><b>${dl===""?"":(dl>0?"+":"")+dl}</b></td></tr>`}).join("")+`</table><p class="mut">Enter results on the Train tab (Day 0 and Final week Friday).</p></div>`;
+ const T=S.tests,names=["Squat","Row","Push-ups","Pike","Door row","Plank"];
+ if(T.day0||T.final){const mx=Math.max(1,...[0,1,2,3,4,5].flatMap(i=>[+(T.day0||{})[i]||0,+(T.final||{})[i]||0]));
+  h+=`<div class="card"><h2>Day 0 vs Final</h2><svg viewBox="0 0 320 150">`+names.map((n,i)=>{const a=+(T.day0||{})[i]||0,b=+(T.final||{})[i]||0,x=i*52+10;return `<rect x="${x}" y="${110-a/mx*90}" width="17" height="${a/mx*90}" fill="var(--mut)" rx="3"/><rect x="${x+19}" y="${110-b/mx*90}" width="17" height="${b/mx*90}" fill="var(--acc)" rx="3"/><text x="${x+18}" y="128" font-size="10" text-anchor="middle" fill="var(--ink)">${n}</text>`}).join("")+`</svg><small class="mut">Gray = Day 0, orange = Final</small></div>`}
+ return h}
+function guide(){return `<div class="card"><h2>Jug fill guide (≈16 L jug)</h2><ul><li>1 L water = 1 kg. A full jug ≈ 17 kg.</li><li>5 L ≈ 3 bottles (1.5 L) · 8 L ≈ 5 · 10 L ≈ 7 · 12 L = 8 · 14 L ≈ 9 · 16 L = full</li><li>Cap tight, dry grip, non-slip floor. If it slips, step away.</li></ul></div>
+<div class="card"><h2>Chair rules</h2><ul><li>Backrest flat against a wall, seat facing you. Never stand on it.</li><li>Test it by pressing hard. If it wobbles, use floor versions.</li></ul></div>
+<div class="card"><h2>Towel door row setup</h2><ol style="padding-left:18px"><li>Heavy solid door that opens AWAY from you; lock it.</li><li>Thick folded towel over the top near the hinge side; close firmly.</li><li>Lean back, pull chest to hands, lower 2–3 s.</li><li>Test with a little weight first. Creaks or slips = stop.</li></ol></div>
+<div class="card"><h2>Every workout</h2><ul><li>Warm up ~7 min: jacks, swings, cat–cow, hip hinge, light squats.</li><li>Hit the top reps on all sets? Next time +2 L or +1 kg.</li><li>Sleep 8–9 h. Sharp pain = stop.</li><li>Tue/Thu: 10 min posture (wall stand, chin tucks, wall angels, cobra, stretches).</li></ul></div>
+<div class="card"><h2>Backup</h2><p class="mut" style="margin:0 0 8px">Your data lives only on this phone. Copy a backup now and then.</p><div class="row"><button class="btn" id="bk">Copy backup</button><button class="btn alt" id="rs">Restore</button></div><textarea id="bt" rows="3" style="width:100%;margin-top:8px" placeholder="Paste a backup here, then tap Restore"></textarea></div><div class="card"><h2>All exercises</h2>`+["MON","WED","FRI"].map(d=>`<h3 style="color:${COL[d]}">${d}</h3>`+X[d].map(e=>`<p style="margin:6px 0"><b>${e[0]}</b><br><small class="mut">${e[2]}</small></p>`).join("")).join("")+`</div>`}
+function render(){document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t==tab));$("#main").innerHTML={train,food,prog,guide}[tab]();scrollTo(0,0)}
+// events
+document.addEventListener("click",e=>{const t=e.target;
+ if(t.dataset.d){S.d=t.dataset.d;save();render()}
+ if(t.classList.contains("set")){const k=t.dataset.k,j=+t.dataset.j,a=S.done[k]||(S.done[k]=[]);a[j]=!a[j];t.classList.toggle("on",!!a[j]);save();if(a[j]&&S.auto)start(+t.dataset.i<3?120:90)}
+ if(t.id=="wadd"){const v=parseFloat($("#wi").value);if(v>0){const d=today(),W=S.weights.filter(x=>x[0]!=d);W.push([d,v]);W.sort();S.weights=W;save();render()}}
+ if(t.id=="bk"){const j=JSON.stringify(S),b=$("#bt");b.value=j;b.select();try{navigator.clipboard.writeText(j).catch(()=>{})}catch(x){try{document.execCommand("copy")}catch(y){}}t.textContent="Copied ✓"}
+ if(t.id=="rs"){try{const o=JSON.parse($("#bt").value);if(o&&typeof o=="object"){S=Object.assign({},S0,o);save();tab="train";render()}}catch(x){t.textContent="Not a valid backup"}}
+ if(t.dataset.r)start(+t.dataset.r);if(t.id=="stop")stop()});
+document.addEventListener("change",e=>{const t=e.target;
+ if(t.id=="sw"){S.w=+t.value;save();render()}
+ if(t.dataset.m!==undefined){const f=S.food[today()];f.m[+t.dataset.m]=t.checked;save();render()}
+ if(t.id=="sp"){S.food[today()].spent=t.value;save();render()}
+ if(t.id=="auto"){S.auto=t.checked;save()}});
+document.addEventListener("input",e=>{const t=e.target;
+ if(t.dataset.l){S.loads[t.dataset.l]=t.value;save()}
+ if(t.dataset.t){const[k,i]=t.dataset.t.split("|");(S.tests[k]||(S.tests[k]={}))[i]=t.value;save()}});
+// timer
+let iv=null,end=0;
+function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function stop(){clearInterval(iv);iv=null;$("#tt").textContent="0:00"}
+function beep(){try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator();o.connect(c.destination);o.frequency.value=880;o.start();setTimeout(()=>{o.stop();c.close()},500)}catch(e){}try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(e){}}
+function start(sec){clearInterval(iv);end=Date.now()+sec*1000;$("#tt").textContent=fmt(sec);iv=setInterval(()=>{const r=Math.max(0,Math.round((end-Date.now())/1000));$("#tt").textContent=fmt(r);if(r<=0){stop();beep();$("#tt").textContent="GO!"}},250)}
+$("#auto").checked=!!S.auto;render();
+if("serviceWorker" in navigator&&location.protocol.indexOf("http")==0)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script></body></html>
